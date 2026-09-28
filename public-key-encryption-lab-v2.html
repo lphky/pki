@@ -1,0 +1,793 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Public Key Encryption Lab</title>
+<style>
+:root{
+  --bg:#0b1020;
+  --panel:#121a2f;
+  --panel2:#17213b;
+  --line:#283654;
+  --text:#eef4ff;
+  --muted:#93a4c4;
+  --accent:#6ea8fe;
+  --accent2:#8b5cf6;
+  --good:#42d392;
+  --bad:#ff7b8b;
+  --warning:#ffc857;
+  --shadow:0 18px 55px rgba(0,0,0,.28);
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  margin:0;
+  min-height:100vh;
+  color:var(--text);
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans TC","Microsoft JhengHei",sans-serif;
+  background:
+    radial-gradient(circle at 15% 0%,rgba(53,105,255,.18),transparent 32%),
+    radial-gradient(circle at 90% 10%,rgba(139,92,246,.16),transparent 28%),
+    var(--bg);
+}
+button,textarea,input{font:inherit}
+button{cursor:pointer}
+.topbar{
+  position:sticky; top:0; z-index:10;
+  border-bottom:1px solid rgba(255,255,255,.08);
+  background:rgba(11,16,32,.82);
+  backdrop-filter:blur(14px);
+}
+.topbar-inner{
+  max-width:1180px; margin:auto; padding:15px 20px;
+  display:flex; align-items:center; justify-content:space-between; gap:20px;
+}
+.brand{
+  display:flex; align-items:center; gap:12px;
+}
+.logo{
+  width:42px;height:42px;border-radius:13px;
+  display:grid;place-items:center;
+  background:linear-gradient(135deg,#3b82f6,#8b5cf6);
+  box-shadow:0 8px 25px rgba(86,112,255,.28);
+  font-size:22px;
+}
+.brand h1{font-size:18px;margin:0}
+.brand p{font-size:12px;color:var(--muted);margin:3px 0 0}
+.nav{
+  display:flex;gap:8px;flex-wrap:wrap;
+}
+.nav a{
+  color:#c9d6ee;text-decoration:none;font-size:13px;
+  border:1px solid var(--line);padding:8px 11px;border-radius:10px;
+}
+.nav a:hover{border-color:#5875aa;color:white}
+
+.hero{
+  max-width:1180px;margin:42px auto 22px;padding:0 20px;
+}
+.hero-box{
+  border:1px solid rgba(255,255,255,.09);
+  background:linear-gradient(135deg,rgba(24,35,64,.95),rgba(17,26,48,.92));
+  box-shadow:var(--shadow);
+  border-radius:28px;
+  padding:34px;
+  display:grid;
+  grid-template-columns:1.35fr .65fr;
+  gap:28px;
+}
+.kicker{
+  display:inline-flex;gap:8px;align-items:center;
+  font-size:12px;font-weight:700;color:#d7e3ff;
+  background:rgba(110,168,254,.12);
+  border:1px solid rgba(110,168,254,.28);
+  border-radius:999px;padding:7px 11px;
+}
+.hero h2{
+  font-size:clamp(30px,5vw,54px);
+  line-height:1.04;margin:16px 0 12px;
+  letter-spacing:-1.6px;
+}
+.hero h2 span{
+  background:linear-gradient(90deg,#74b0ff,#af8cff);
+  -webkit-background-clip:text;background-clip:text;color:transparent;
+}
+.hero p{
+  color:#b2bfd8;line-height:1.75;font-size:15px;max-width:780px;margin:0;
+}
+.hero-steps{
+  display:grid;gap:10px;align-content:center;
+}
+.step-pill{
+  border:1px solid var(--line);
+  background:rgba(255,255,255,.035);
+  border-radius:15px;
+  padding:13px 14px;
+  display:flex;gap:12px;align-items:center;
+}
+.step-no{
+  flex:0 0 30px;width:30px;height:30px;border-radius:10px;
+  display:grid;place-items:center;font-weight:800;
+  background:#202d4e;color:#9bc0ff;
+}
+.step-pill b{display:block;font-size:14px}
+.step-pill small{display:block;color:var(--muted);margin-top:2px}
+
+main{
+  max-width:1180px;margin:0 auto 70px;padding:0 20px;
+}
+.tool-section{
+  margin-top:22px;
+  background:linear-gradient(180deg,rgba(18,26,47,.98),rgba(15,22,40,.98));
+  border:1px solid rgba(255,255,255,.09);
+  border-radius:24px;
+  box-shadow:var(--shadow);
+  overflow:hidden;
+}
+.section-head{
+  display:flex;justify-content:space-between;gap:16px;align-items:center;
+  padding:20px 22px;border-bottom:1px solid rgba(255,255,255,.08);
+  flex-wrap:wrap;
+}
+.section-title{
+  display:flex;gap:13px;align-items:center;
+}
+.section-icon{
+  width:44px;height:44px;border-radius:14px;
+  display:grid;place-items:center;font-size:22px;
+  background:#1d2947;border:1px solid #31436d;
+}
+.section-head h3{margin:0;font-size:21px}
+.section-head p{margin:4px 0 0;color:var(--muted);font-size:13px}
+.tag{
+  color:#a9c9ff;background:rgba(110,168,254,.08);
+  border:1px solid rgba(110,168,254,.23);
+  border-radius:999px;padding:7px 10px;font-size:12px;font-weight:700;
+}
+.section-body{padding:22px}
+
+.action-row{
+  display:flex;gap:10px;flex-wrap:wrap;align-items:center;
+}
+.btn{
+  border:0;border-radius:12px;padding:11px 15px;
+  color:white;font-weight:700;
+  transition:.15s ease;
+}
+.btn:hover{transform:translateY(-1px)}
+.btn-primary{
+  background:linear-gradient(135deg,#3b82f6,#7c3aed);
+  box-shadow:0 9px 22px rgba(68,94,255,.22);
+}
+.btn-secondary{
+  background:#1d2947;border:1px solid #34486f;color:#e6efff;
+}
+.btn-ghost{
+  background:transparent;border:1px solid var(--line);color:#bcc9df;
+}
+.btn.small{padding:8px 11px;font-size:12px;border-radius:9px}
+.btn:disabled{opacity:.48;cursor:not-allowed;transform:none}
+
+.status{
+  margin-top:13px;border-radius:12px;padding:11px 13px;
+  font-size:13px;display:none;line-height:1.5;
+}
+.status.show{display:block}
+.status.good{background:rgba(66,211,146,.09);border:1px solid rgba(66,211,146,.28);color:#a7f3d0}
+.status.bad{background:rgba(255,123,139,.09);border:1px solid rgba(255,123,139,.3);color:#fecdd3}
+.status.info{background:rgba(110,168,254,.08);border:1px solid rgba(110,168,254,.25);color:#c9ddff}
+
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+.key-card,.field-card{
+  border:1px solid var(--line);background:rgba(255,255,255,.025);
+  border-radius:18px;padding:16px;
+}
+.field-head{
+  display:flex;justify-content:space-between;align-items:center;gap:12px;
+  margin-bottom:9px;flex-wrap:wrap;
+}
+.field-head label,.field-head strong{font-size:14px}
+.hint{color:var(--muted);font-size:12px;line-height:1.5}
+textarea{
+  width:100%;min-height:170px;resize:vertical;
+  border:1px solid #2c3a5a;background:#0b1326;color:#dce8ff;
+  border-radius:13px;padding:13px 14px;outline:none;
+  line-height:1.55;font-family:ui-monospace,SFMono-Regular,Consolas,monospace;
+  font-size:12px;
+}
+textarea.text-input{
+  font-family:inherit;font-size:14px;min-height:150px;
+}
+textarea:focus{border-color:#5e8fe1;box-shadow:0 0 0 3px rgba(94,143,225,.12)}
+.output{
+  min-height:150px;
+}
+.copy-group{display:flex;gap:7px;flex-wrap:wrap}
+.note{
+  margin-top:14px;color:var(--muted);font-size:12px;line-height:1.65;
+}
+.warning{
+  border:1px solid rgba(255,200,87,.27);
+  background:rgba(255,200,87,.06);
+  color:#ffe3a2;border-radius:13px;padding:12px 14px;
+  margin-bottom:16px;font-size:13px;line-height:1.55;
+}
+.flow{
+  display:flex;align-items:center;justify-content:center;gap:10px;
+  color:#92a7c8;font-size:13px;margin:14px 0 2px;flex-wrap:wrap;
+}
+.flow span{
+  padding:7px 10px;border:1px solid var(--line);border-radius:9px;
+  background:#111b31;
+}
+.flow .arrow{border:0;background:transparent;padding:0;color:#6ea8fe;font-size:18px}
+footer{
+  max-width:1180px;margin:24px auto 45px;padding:0 20px;
+  color:#7f91b0;font-size:12px;text-align:center;line-height:1.7;
+}
+
+@media(max-width:820px){
+  .hero-box,.grid-2{grid-template-columns:1fr}
+  .topbar-inner{align-items:flex-start;flex-direction:column}
+  .nav{width:100%}
+  .nav a{flex:1;text-align:center}
+  .hero{margin-top:24px}
+  .hero-box{padding:24px}
+  .section-body{padding:16px}
+}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="topbar-inner">
+    <div class="brand">
+      <div class="logo">🔐</div>
+      <div>
+        <h1>Public Key Encryption Lab</h1>
+        <p>Browser-based RSA + AES Teaching Tool</p>
+      </div>
+    </div>
+    <nav class="nav">
+      <a href="#keys">1. Key Pair</a>
+      <a href="#encrypt">2. Encrypt</a>
+      <a href="#decrypt">3. Decrypt</a>
+    </nav>
+  </div>
+</div>
+
+<section class="hero">
+  <div class="hero-box">
+    <div>
+      <div class="kicker">🧪 INTERACTIVE CRYPTO LAB</div>
+      <h2>建立、加密、解密。<br><span>直接看見 Key 的作用。</span></h2>
+      <p>
+        這個工具讓學生建立自己的 Public Key / Private Key，
+        再親自把 Key 複製、貼上到加密及解密區使用。
+        所有運算都在瀏覽器內完成，不會把 Key 或文字傳送到伺服器。
+      </p>
+    </div>
+    <div class="hero-steps">
+      <div class="step-pill">
+        <div class="step-no">1</div>
+        <div><b>Generate Key Pair</b><small>建立自己的公開 / 私人密碼匙</small></div>
+      </div>
+      <div class="step-pill">
+        <div class="step-no">2</div>
+        <div><b>Encrypt</b><small>貼上 Public Key，加密文字</small></div>
+      </div>
+      <div class="step-pill">
+        <div class="step-no">3</div>
+        <div><b>Decrypt</b><small>貼上 Private Key，還原文字</small></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<main>
+
+<section class="tool-section" id="keys">
+  <div class="section-head">
+    <div class="section-title">
+      <div class="section-icon">🗝️</div>
+      <div>
+        <h3>1. 建立自己的 Key Pair</h3>
+        <p>建立一組 RSA-OAEP 2048-bit Public Key / Private Key</p>
+      </div>
+    </div>
+    <span class="tag">Generate Key Pair</span>
+  </div>
+
+  <div class="section-body">
+    <div class="action-row">
+      <button class="btn btn-primary" id="generateBtn">＋ 建立新 Key Pair</button>
+      <button class="btn btn-ghost" id="clearKeysBtn">清除</button>
+    </div>
+
+    <div id="keyStatus" class="status"></div>
+
+    <div class="grid-2" style="margin-top:18px">
+      <div class="key-card">
+        <div class="field-head">
+          <div>
+            <strong>🔑 Public Key</strong>
+            <div class="hint">可以分享給其他人</div>
+          </div>
+          <div class="copy-group">
+            <button class="btn btn-secondary small" data-copy="publicKey">Copy</button>
+          </div>
+        </div>
+        <textarea id="publicKey" spellcheck="false" placeholder="按「建立新 Key Pair」後，Public Key 會在這裡顯示。"></textarea>
+      </div>
+
+      <div class="key-card">
+        <div class="field-head">
+          <div>
+            <strong>🗝️ Private Key</strong>
+            <div class="hint">應由自己保存，不應公開</div>
+          </div>
+          <div class="copy-group">
+            <button class="btn btn-secondary small" data-copy="privateKey">Copy</button>
+          </div>
+        </div>
+        <textarea id="privateKey" spellcheck="false" placeholder="按「建立新 Key Pair」後，Private Key 會在這裡顯示。"></textarea>
+      </div>
+    </div>
+
+    <div class="note">
+      教學提示：Public Key 可以給其他人，用來「加密資料給你」；Private Key 則用來把資料解密。
+      一組 Public Key 和 Private Key 是互相配對的。
+    </div>
+  </div>
+</section>
+
+<section class="tool-section" id="encrypt">
+  <div class="section-head">
+    <div class="section-title">
+      <div class="section-icon">🔒</div>
+      <div>
+        <h3>2. 加密文字</h3>
+        <p>貼上收件者的 Public Key，再輸入要加密的文字</p>
+      </div>
+    </div>
+    <span class="tag">Encrypt</span>
+  </div>
+
+  <div class="section-body">
+    <div class="warning">
+      要把資料安全傳送給某人，請使用<strong>收件者的 Public Key</strong>進行加密。
+    </div>
+
+    <div class="grid-2">
+      <div class="field-card">
+        <div class="field-head">
+          <label for="encryptPublicKey"><strong>Public Key</strong></label>
+          <div class="copy-group">
+            <button class="btn btn-secondary small" data-paste="encryptPublicKey">Paste</button>
+            <button class="btn btn-ghost small" data-use="publicKey" data-target="encryptPublicKey">使用上方 Public Key</button>
+          </div>
+        </div>
+        <textarea id="encryptPublicKey" spellcheck="false" placeholder="貼上 Public Key，例如：
+-----BEGIN PUBLIC KEY-----
+...
+-----END PUBLIC KEY-----"></textarea>
+      </div>
+
+      <div class="field-card">
+        <div class="field-head">
+          <label for="plainText"><strong>要加密的文字</strong></label>
+          <div class="copy-group">
+            <button class="btn btn-secondary small" data-paste="plainText">Paste</button>
+            <button class="btn btn-ghost small" data-clear="plainText">清除</button>
+          </div>
+        </div>
+        <textarea id="plainText" class="text-input" placeholder="在這裡輸入文字，例如：
+The password is ICT2026."></textarea>
+      </div>
+    </div>
+
+    <div class="flow">
+      <span>Plaintext</span><span class="arrow">→</span><span>Public Key</span><span class="arrow">→</span><span>Encrypted Text</span>
+    </div>
+
+    <div class="action-row" style="margin-top:16px">
+      <button class="btn btn-primary" id="encryptBtn">🔒 Encrypt 加密</button>
+    </div>
+
+    <div id="encryptStatus" class="status"></div>
+
+    <div class="field-card" style="margin-top:18px">
+      <div class="field-head">
+        <div>
+          <strong>Encrypted Text</strong>
+          <div class="hint">把整段文字複製給收件者</div>
+        </div>
+        <div class="copy-group">
+          <button class="btn btn-secondary small" data-copy="encryptedText">Copy</button>
+        </div>
+      </div>
+      <textarea id="encryptedText" class="output" spellcheck="false" readonly placeholder="加密結果會在這裡顯示。"></textarea>
+    </div>
+  </div>
+</section>
+
+<section class="tool-section" id="decrypt">
+  <div class="section-head">
+    <div class="section-title">
+      <div class="section-icon">🔓</div>
+      <div>
+        <h3>3. 解密文字</h3>
+        <p>貼上自己的 Private Key 和 Encrypted Text</p>
+      </div>
+    </div>
+    <span class="tag">Decrypt</span>
+  </div>
+
+  <div class="section-body">
+    <div class="warning">
+      解密必須使用與加密時 Public Key <strong>相配對的 Private Key</strong>。
+      使用其他人的 Private Key 將無法成功解密。
+    </div>
+
+    <div class="grid-2">
+      <div class="field-card">
+        <div class="field-head">
+          <label for="decryptPrivateKey"><strong>Private Key</strong></label>
+          <div class="copy-group">
+            <button class="btn btn-secondary small" data-paste="decryptPrivateKey">Paste</button>
+            <button class="btn btn-ghost small" data-use="privateKey" data-target="decryptPrivateKey">使用上方 Private Key</button>
+          </div>
+        </div>
+        <textarea id="decryptPrivateKey" spellcheck="false" placeholder="貼上 Private Key，例如：
+-----BEGIN PRIVATE KEY-----
+...
+-----END PRIVATE KEY-----"></textarea>
+      </div>
+
+      <div class="field-card">
+        <div class="field-head">
+          <label for="decryptCipher"><strong>Encrypted Text</strong></label>
+          <div class="copy-group">
+            <button class="btn btn-secondary small" data-paste="decryptCipher">Paste</button>
+            <button class="btn btn-ghost small" data-use="encryptedText" data-target="decryptCipher">使用上方加密結果</button>
+          </div>
+        </div>
+        <textarea id="decryptCipher" spellcheck="false" placeholder="貼上 Encrypted Text。"></textarea>
+      </div>
+    </div>
+
+    <div class="flow">
+      <span>Encrypted Text</span><span class="arrow">→</span><span>Private Key</span><span class="arrow">→</span><span>Plaintext</span>
+    </div>
+
+    <div class="action-row" style="margin-top:16px">
+      <button class="btn btn-primary" id="decryptBtn">🔓 Decrypt 解密</button>
+    </div>
+
+    <div id="decryptStatus" class="status"></div>
+
+    <div class="field-card" style="margin-top:18px">
+      <div class="field-head">
+        <div>
+          <strong>Decrypted Text</strong>
+          <div class="hint">成功解密後會還原原本文字</div>
+        </div>
+        <div class="copy-group">
+          <button class="btn btn-secondary small" data-copy="decryptedText">Copy</button>
+        </div>
+      </div>
+      <textarea id="decryptedText" class="text-input output" readonly placeholder="解密結果會在這裡顯示。"></textarea>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<footer>
+  Public Key Encryption Lab · 教學用途<br>
+  使用 Web Crypto API。Key Pair、原文及密文只在目前瀏覽器分頁內處理。
+</footer>
+
+<script>
+const enc = new TextEncoder();
+const dec = new TextDecoder();
+
+function setStatus(id, type, text){
+  const el = document.getElementById(id);
+  el.className = "status show " + type;
+  el.innerHTML = text;
+}
+function clearStatus(id){
+  const el = document.getElementById(id);
+  el.className = "status";
+  el.innerHTML = "";
+}
+function bytesToBase64(bytes){
+  let binary = "";
+  const arr = bytes instanceof Uint8Array ? bytes : new Uint8Array(bytes);
+  const chunk = 0x8000;
+  for(let i=0;i<arr.length;i+=chunk){
+    binary += String.fromCharCode(...arr.subarray(i,i+chunk));
+  }
+  return btoa(binary);
+}
+function base64ToBytes(base64){
+  const binary = atob(base64);
+  const bytes = new Uint8Array(binary.length);
+  for(let i=0;i<binary.length;i++) bytes[i] = binary.charCodeAt(i);
+  return bytes;
+}
+function arrayBufferToPem(buffer, label){
+  const base64 = bytesToBase64(buffer);
+  const lines = base64.match(/.{1,64}/g).join("\n");
+  return `-----BEGIN ${label}-----\n${lines}\n-----END ${label}-----`;
+}
+function pemToArrayBuffer(pem){
+  const clean = pem
+    .replace(/-----BEGIN [^-]+-----/g,"")
+    .replace(/-----END [^-]+-----/g,"")
+    .replace(/\s/g,"");
+  return base64ToBytes(clean).buffer;
+}
+
+async function generateKeyPair(){
+  if(!crypto?.subtle) throw new Error("此瀏覽器不支援 Web Crypto API。");
+  return await crypto.subtle.generateKey(
+    {
+      name:"RSA-OAEP",
+      modulusLength:2048,
+      publicExponent:new Uint8Array([1,0,1]),
+      hash:"SHA-256"
+    },
+    true,
+    ["encrypt","decrypt"]
+  );
+}
+async function exportPublicKey(key){
+  const spki = await crypto.subtle.exportKey("spki",key);
+  return arrayBufferToPem(spki,"PUBLIC KEY");
+}
+async function exportPrivateKey(key){
+  const pkcs8 = await crypto.subtle.exportKey("pkcs8",key);
+  return arrayBufferToPem(pkcs8,"PRIVATE KEY");
+}
+async function importPublicKey(pem){
+  return await crypto.subtle.importKey(
+    "spki",
+    pemToArrayBuffer(pem),
+    {name:"RSA-OAEP",hash:"SHA-256"},
+    false,
+    ["encrypt"]
+  );
+}
+async function importPrivateKey(pem){
+  return await crypto.subtle.importKey(
+    "pkcs8",
+    pemToArrayBuffer(pem),
+    {name:"RSA-OAEP",hash:"SHA-256"},
+    false,
+    ["decrypt"]
+  );
+}
+
+/*
+ Hybrid encryption:
+ - Generate random AES-GCM 256 key
+ - Encrypt plaintext using AES-GCM
+ - Encrypt AES key using recipient RSA public key
+ This permits much longer teaching text than raw RSA-OAEP alone.
+*/
+async function hybridEncrypt(publicKeyPem, plaintext){
+  const publicKey = await importPublicKey(publicKeyPem);
+
+  const aesKey = await crypto.subtle.generateKey(
+    {name:"AES-GCM",length:256},
+    true,
+    ["encrypt","decrypt"]
+  );
+
+  const iv = crypto.getRandomValues(new Uint8Array(12));
+  const cipherBuffer = await crypto.subtle.encrypt(
+    {name:"AES-GCM",iv},
+    aesKey,
+    enc.encode(plaintext)
+  );
+
+  const rawAes = await crypto.subtle.exportKey("raw",aesKey);
+  const encryptedAes = await crypto.subtle.encrypt(
+    {name:"RSA-OAEP"},
+    publicKey,
+    rawAes
+  );
+
+  const packageObject = {
+    version:1,
+    algorithm:"RSA-OAEP-2048 + AES-GCM-256",
+    encryptedKey:bytesToBase64(encryptedAes),
+    iv:bytesToBase64(iv),
+    ciphertext:bytesToBase64(cipherBuffer)
+  };
+
+  return btoa(unescape(encodeURIComponent(JSON.stringify(packageObject))));
+}
+
+async function hybridDecrypt(privateKeyPem, packageText){
+  const privateKey = await importPrivateKey(privateKeyPem);
+
+  let obj;
+  try{
+    const json = decodeURIComponent(escape(atob(packageText.trim())));
+    obj = JSON.parse(json);
+  }catch{
+    throw new Error("Encrypted Text 格式不正確。請確認已完整複製整段密文。");
+  }
+
+  if(!obj.encryptedKey || !obj.iv || !obj.ciphertext){
+    throw new Error("Encrypted Text 缺少必要資料。");
+  }
+
+  const rawAes = await crypto.subtle.decrypt(
+    {name:"RSA-OAEP"},
+    privateKey,
+    base64ToBytes(obj.encryptedKey)
+  );
+
+  const aesKey = await crypto.subtle.importKey(
+    "raw",
+    rawAes,
+    {name:"AES-GCM"},
+    false,
+    ["decrypt"]
+  );
+
+  const plainBuffer = await crypto.subtle.decrypt(
+    {name:"AES-GCM",iv:base64ToBytes(obj.iv)},
+    aesKey,
+    base64ToBytes(obj.ciphertext)
+  );
+
+  return dec.decode(plainBuffer);
+}
+
+document.getElementById("generateBtn").addEventListener("click", async ()=>{
+  const btn = document.getElementById("generateBtn");
+  btn.disabled = true;
+  btn.textContent = "正在建立...";
+  setStatus("keyStatus","info","正在建立 RSA 2048-bit Key Pair…");
+  try{
+    const pair = await generateKeyPair();
+    document.getElementById("publicKey").value = await exportPublicKey(pair.publicKey);
+    document.getElementById("privateKey").value = await exportPrivateKey(pair.privateKey);
+    setStatus("keyStatus","good","✅ Key Pair 建立完成。Public Key 可以分享；Private Key 請保留給自己。");
+  }catch(err){
+    setStatus("keyStatus","bad","❌ 建立失敗：" + escapeHtml(err.message || String(err)));
+  }finally{
+    btn.disabled = false;
+    btn.textContent = "＋ 建立新 Key Pair";
+  }
+});
+
+document.getElementById("clearKeysBtn").addEventListener("click",()=>{
+  document.getElementById("publicKey").value="";
+  document.getElementById("privateKey").value="";
+  clearStatus("keyStatus");
+});
+
+document.getElementById("encryptBtn").addEventListener("click",async()=>{
+  const key = document.getElementById("encryptPublicKey").value.trim();
+  const text = document.getElementById("plainText").value;
+  const btn = document.getElementById("encryptBtn");
+
+  if(!key){
+    setStatus("encryptStatus","bad","❌ 請先貼上 Public Key。");
+    return;
+  }
+  if(!text){
+    setStatus("encryptStatus","bad","❌ 請輸入要加密的文字。");
+    return;
+  }
+
+  btn.disabled=true;
+  btn.textContent="正在加密...";
+  setStatus("encryptStatus","info","正在使用 Public Key 加密資料…");
+
+  try{
+    const result = await hybridEncrypt(key,text);
+    document.getElementById("encryptedText").value=result;
+    setStatus("encryptStatus","good","✅ 加密成功。只有持有相配 Private Key 的人才能解密。");
+  }catch(err){
+    setStatus("encryptStatus","bad","❌ 加密失敗。請檢查 Public Key 是否完整及格式正確。<br><span class='hint'>" + escapeHtml(err.message || String(err)) + "</span>");
+  }finally{
+    btn.disabled=false;
+    btn.textContent="🔒 Encrypt 加密";
+  }
+});
+
+document.getElementById("decryptBtn").addEventListener("click",async()=>{
+  const key = document.getElementById("decryptPrivateKey").value.trim();
+  const cipher = document.getElementById("decryptCipher").value.trim();
+  const btn = document.getElementById("decryptBtn");
+
+  if(!key){
+    setStatus("decryptStatus","bad","❌ 請先貼上 Private Key。");
+    return;
+  }
+  if(!cipher){
+    setStatus("decryptStatus","bad","❌ 請先貼上 Encrypted Text。");
+    return;
+  }
+
+  btn.disabled=true;
+  btn.textContent="正在解密...";
+  setStatus("decryptStatus","info","正在嘗試使用 Private Key 解密…");
+
+  try{
+    const result = await hybridDecrypt(key,cipher);
+    document.getElementById("decryptedText").value=result;
+    setStatus("decryptStatus","good","✅ 解密成功。這條 Private Key 與加密時使用的 Public Key 配對。");
+  }catch(err){
+    document.getElementById("decryptedText").value="";
+    setStatus("decryptStatus","bad","❌ 解密失敗。最常見原因是 Private Key 不配對，或 Encrypted Text 不完整。<br><span class='hint'>" + escapeHtml(err.message || String(err)) + "</span>");
+  }finally{
+    btn.disabled=false;
+    btn.textContent="🔓 Decrypt 解密";
+  }
+});
+
+async function copyText(id,button){
+  const el=document.getElementById(id);
+  const value=el.value;
+  if(!value) return;
+  try{
+    await navigator.clipboard.writeText(value);
+  }catch{
+    el.focus();
+    el.select();
+    document.execCommand("copy");
+    el.setSelectionRange(0,0);
+  }
+  const old=button.textContent;
+  button.textContent="Copied ✓";
+  setTimeout(()=>button.textContent=old,1000);
+}
+
+async function pasteText(id,button){
+  try{
+    const text=await navigator.clipboard.readText();
+    document.getElementById(id).value=text;
+    const old=button.textContent;
+    button.textContent="Pasted ✓";
+    setTimeout(()=>button.textContent=old,1000);
+  }catch{
+    alert("瀏覽器未允許直接讀取剪貼簿。請按 Ctrl+V / Cmd+V 手動貼上；在 GitHub Pages (HTTPS) 通常可正常使用 Paste 按鈕。");
+    document.getElementById(id).focus();
+  }
+}
+
+document.querySelectorAll("[data-copy]").forEach(btn=>{
+  btn.addEventListener("click",()=>copyText(btn.dataset.copy,btn));
+});
+document.querySelectorAll("[data-paste]").forEach(btn=>{
+  btn.addEventListener("click",()=>pasteText(btn.dataset.paste,btn));
+});
+document.querySelectorAll("[data-use]").forEach(btn=>{
+  btn.addEventListener("click",()=>{
+    document.getElementById(btn.dataset.target).value=
+      document.getElementById(btn.dataset.use).value;
+  });
+});
+document.querySelectorAll("[data-clear]").forEach(btn=>{
+  btn.addEventListener("click",()=>{
+    document.getElementById(btn.dataset.clear).value="";
+  });
+});
+
+function escapeHtml(str){
+  return String(str).replace(/[&<>"']/g,m=>({
+    "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"
+  }[m]));
+}
+</script>
+</body>
+</html>
